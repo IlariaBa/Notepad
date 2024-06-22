@@ -1,10 +1,39 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { Context } from "../store/appContext";
 import rigoImageUrl from "../../img/rigo-baby.jpg";
 import "../../styles/home.css";
 
+import { getNotes, getNote } from "../../client-API/backendAPI";
+
 export const Home = () => {
 	const { store, actions } = useContext(Context);
+	
+	///////////////////////////////////////////
+	//Get all notes
+	const [isLoading, setIsLoading] = useState(false);
+	const [errorMsg, setErrorMsg] = useState("");
+	const [notesInfo, setNotesInfo] = useState(null);
+
+	useEffect(() => {
+		fetchNotes();
+	}, []);
+
+	const fetchNotes = async () => {
+		setErrorMsg("");
+		setIsLoading(true);
+
+		try {
+			const data = await getNotes();
+			setNotesInfo(data);
+			setIsLoading(false);
+		} catch (error) {
+			console.error(`Error fetching user by id: `, error);
+			setErrorMsg(error.message);
+			setIsLoading(false);
+		}
+	}
+
+	console.log(notesInfo);
 
 	return (
 		<div className="text-center mt-5">

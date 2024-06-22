@@ -25,7 +25,8 @@ class Note(db.Model):
 class Category(db.Model):
     __tablename__='category'
     id = db.Column(db.Integer, primary_key=True)
-    category_name = db.Column(db.String(25))
+    category_name = db.Column(db.String(25), nullable=False)
+    color = db.Column(db.String(20))
 
     def __repr__(self):
         return 'Category with id {} and name {}'.format(self.id, self.category_name)
@@ -34,6 +35,7 @@ class Category(db.Model):
         return {
             "id": self.id,
             "category_name": self.category_name,
+            "color": self.color,
         }
 
 class NoteCategory(db.Model):
