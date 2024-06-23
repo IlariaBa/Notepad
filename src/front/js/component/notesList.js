@@ -5,7 +5,7 @@ import { getCategories } from "../../client-API/backendAPI";
 
 import { NoteCard } from "./noteCard";
 
-export const NotesList = ({ updateNotes, updateCategories, filter }) => {
+export const NotesList = ({ updateNotes, updateCategories, filter, categoryFilter }) => {
 
     const [isLoading, setIsLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
@@ -59,8 +59,17 @@ export const NotesList = ({ updateNotes, updateCategories, filter }) => {
     };
 
     const filterNotes = (notes) => {
-        if (filter === 'all') return notes;
-        return notes.filter(note => filter === 'active' ? note.is_active : !note.is_active);
+        let filtered = notes;
+
+        if (filter !== 'all') {
+            filtered = filtered.filter(note => filter === 'active' ? note.is_active : !note.is_active);
+        }
+
+        if (categoryFilter) {
+            filtered = filtered.filter(note => note.categories.some(cat => cat.id === categoryFilter));
+        }
+
+        return filtered;
     };
 
     const filteredNotes = notesInfo ? filterNotes(notesInfo.results) : [];
