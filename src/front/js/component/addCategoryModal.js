@@ -29,7 +29,7 @@ export const AddCategoryModal = ({ onCategoryAdded }) => {
         }
     };
 
-    const colors = ["green", "blue", "pink", "purple", "red", "yellow", "orange"];
+    const colors = ["red", "orange", "yellow", "green", "blue", "purple", "pink"];
 
     return (
         <div className="modal fade" id="addCategoryModal" tabIndex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
@@ -49,7 +49,7 @@ export const AddCategoryModal = ({ onCategoryAdded }) => {
                             <div className="mb-3">
                                 <label className="form-label">Color</label>
                                 {colors.map((color) => (
-                                    <div key={color} className="form-check form-check">
+                                    <div key={color} className={`form-check form-check rounded ${color}`}>
                                         <input
                                             className="form-check-input"
                                             type="radio"

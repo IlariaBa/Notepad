@@ -120,7 +120,7 @@ export const NoteCard = ({ note, categories, onNoteDeleted, onNoteUpdated }) => 
                     {note.categories.length > 0 ? (
                         <div className="d-flex">
                             {note.categories.map((category) => (
-                                <div key={category.id} className="me-2 px-3 py-1 bg-success rounded">{category.category_name}</div>
+                                <div key={category.id} className={`me-2 px-3 py-1 rounded ${category.color}`}>{category.category_name}</div>
                             ))}
                         </div>
                     ) : (
@@ -138,6 +138,7 @@ export const NoteCard = ({ note, categories, onNoteDeleted, onNoteUpdated }) => 
                                     </button>
                                 </li>
                             ))}
+                            {categories.length == 0 && <li className="fst-italic ms-2">Add category above</li>}
                         </ul>
                     </div>
                 </div>

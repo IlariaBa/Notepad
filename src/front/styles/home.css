@@ -1,7 +1,27 @@
-/*
-    home.css: This website contains selectors only used in home.css
+.pink {
+    background-color: pink;
+}
 
-    All pages share the styles on index.css but you should create 
-    one more css for each page that will contain the selected used 
-    on that page only (the ones not reused in other pages).
-*/
+.purple {
+    background-color: rgb(194, 121, 194);
+}
+
+.blue {
+    background-color: rgb(121, 121, 253);
+}
+
+.green {
+    background-color: rgb(137, 208, 137);
+}
+
+.yellow {
+    background-color: rgb(247, 247, 133);
+}
+
+.orange{
+    background-color: rgb(251, 198, 99);
+}
+
+.red {
+    background-color: rgb(246, 124, 124);
+}
