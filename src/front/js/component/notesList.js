@@ -5,7 +5,7 @@ import { getCategories } from "../../client-API/backendAPI";
 
 import { NoteCard } from "./noteCard";
 
-export const NotesList = ({ updateNotes, filter }) => {
+export const NotesList = ({ updateNotes, updateCategories, filter }) => {
 
     const [isLoading, setIsLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
@@ -33,7 +33,7 @@ export const NotesList = ({ updateNotes, filter }) => {
 
     useEffect(() => {
         fetchesCategories();
-    }, []);
+    }, [updateCategories]);
 
     const fetchesCategories = async () => {
         setErrorMsg("");

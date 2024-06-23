@@ -12,10 +12,10 @@ export const NoteCard = ({ note, categories, onNoteDeleted, onNoteUpdated }) => 
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
 
-
     const [noteDelete, setNoteDelete] = useState();
     const [noteEdit, setNoteEdit] = useState();
-    const [noteActive, setNoteActive] = useState(note.is_active)
+    const [noteActive, setNoteActive] = useState(note.is_active);
+    const [noteCategories, setNoteCategories] = useState(note.categories);
 
     const onDelete = async (data) => {
         setErrorMsg("");
@@ -33,7 +33,7 @@ export const NoteCard = ({ note, categories, onNoteDeleted, onNoteUpdated }) => 
         }
     }
 
-    const { register, handleSubmit, reset, setValue } = useForm({
+    const { register, handleSubmit, reset } = useForm({
         defaultValues: {
             title: "",
             content: "",
@@ -87,6 +87,28 @@ export const NoteCard = ({ note, categories, onNoteDeleted, onNoteUpdated }) => 
         }
     };
 
+    // Function to handle adding category to note
+    const handleAddCategory = async (category) => {
+        try {
+            let updatedCategories = [...noteCategories];
+
+            // If the category is already added to the note, remove it from the list of note categories
+            if (updatedCategories.some(cat => cat.id === category.id)) {
+                updatedCategories = updatedCategories.filter(cat => cat.id !== category.id);
+            } else {
+                // If the category is not added to the note, add it to the list of note categories
+                updatedCategories.push(category);
+            }
+
+            setNoteCategories(updatedCategories);
+            await editNote(note.id, { ...note, categories: updatedCategories });
+
+            onNoteUpdated();
+        } catch (error) {
+            setErrorMsg(error.message);
+        }
+    };
+
     if (!note) {
         return <div className="fst-italic">There are no notes</div>;
     }
@@ -111,13 +133,11 @@ export const NoteCard = ({ note, categories, onNoteDeleted, onNoteUpdated }) => 
                         <ul className="dropdown-menu" aria-labelledby="filterDropdown">
                             {categories.map((category) => (
                                 <li key={category.id}>
-                                    <button className="dropdown-item">{category.category_name}</button>
+                                    <button className="dropdown-item" onClick={() => handleAddCategory(category)}>
+                                        {category.category_name}
+                                    </button>
                                 </li>
                             ))}
-                            {categories.length >0 && <hr className="my-1"/>}
-                            <li>
-                                <button className="dropdown-item fst-italic">Add category</button>
-                            </li>
                         </ul>
                     </div>
                 </div>

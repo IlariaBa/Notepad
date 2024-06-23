@@ -76,16 +76,16 @@ def update_note(note_id):
         note.content = body.get("content", note.content)
     if "is_active" in body:
         note.is_active = body.get("is_active", note.is_active)
-    if "category_ids" in body:
-        existing_category_ids = [category.id for category in note.categories]
-        new_category_ids = body.get("category_ids", [])
+    if "categories" in body:
+        # Clear existing categories
+        note.categories.clear()
+        new_categories = body.get("categories", [])
         
-        for category_id in new_category_ids:
-            if category_id not in existing_category_ids:
-                category = Category.query.get(category_id)
-                if category:
-                    note_category = NoteCategory(note_id=note.id, category_id=category.id)
-                    db.session.add(note_category)
+        for category_data in new_categories:
+            category_id = category_data.get("id")
+            category = Category.query.get(category_id)
+            if category:
+                note.categories.append(category)
 
     db.session.commit()
 

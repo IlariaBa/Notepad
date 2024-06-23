@@ -153,3 +153,29 @@ export const getCategories = async() => {
         throw error;
     }
 }
+
+//Add new category
+export const addCategory = async (newCategory) => {
+    try {
+        const response = await fetch(`${apiUrlBase}/api/category`, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: newCategory,
+        });
+        const data = await response.json();
+
+        if (!response.ok) {
+            const errorData = data;
+            throw new Error(errorData.msg);
+        }
+
+        // Returns the new category
+        return data.result;
+
+    } catch (error) {
+        console.error('Error trying to add a new category', error);
+        throw error;
+    }
+}

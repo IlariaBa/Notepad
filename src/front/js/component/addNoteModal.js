@@ -21,8 +21,8 @@ export const AddNoteModal = ({ onNoteAdded }) => {
             onNoteAdded(); //Call onNoteAdded to update the notes list
 
             //Close modal
-            const myModalEl = document.getElementById('addNoteModal');
-            const modal = window.bootstrap.Modal.getInstance(myModalEl);
+            const myModal = document.getElementById('addNoteModal');
+            const modal = window.bootstrap.Modal.getInstance(myModal);
             modal.hide();
 
             setIsSubmitting(false);
