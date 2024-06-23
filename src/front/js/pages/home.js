@@ -1,55 +1,25 @@
 import React, { useContext, useState, useEffect } from "react";
-import { Context } from "../store/appContext";
-import rigoImageUrl from "../../img/rigo-baby.jpg";
 import "../../styles/home.css";
 
-import { getNotes, getNote } from "../../client-API/backendAPI";
+import { NotesList } from "../component/notesList";
+import { AddNoteModal } from "../component/addNoteModal";
 
 export const Home = () => {
-	const { store, actions } = useContext(Context);
-	
-	///////////////////////////////////////////
-	//Get all notes
-	const [isLoading, setIsLoading] = useState(false);
-	const [errorMsg, setErrorMsg] = useState("");
-	const [notesInfo, setNotesInfo] = useState(null);
 
-	useEffect(() => {
-		fetchNotes();
-	}, []);
+	const [updateNotes, setUpdateNotes] = useState(false);
 
-	const fetchNotes = async () => {
-		setErrorMsg("");
-		setIsLoading(true);
-
-		try {
-			const data = await getNotes();
-			setNotesInfo(data);
-			setIsLoading(false);
-		} catch (error) {
-			console.error(`Error fetching user by id: `, error);
-			setErrorMsg(error.message);
-			setIsLoading(false);
-		}
-	}
-
-	console.log(notesInfo);
+    const handleNoteAdded = () => {
+        setUpdateNotes(prev => !prev);
+    };
 
 	return (
-		<div className="text-center mt-5">
-			<h1>Hello Rigo!!</h1>
-			<p>
-				<img src={rigoImageUrl} />
-			</p>
-			<div className="alert alert-info">
-				{store.message || "Loading message from the backend (make sure your python backend is running)..."}
+		<div className="container mt-5">
+			<h1 className="text-center mb-4">Notepad</h1>
+			<div className="d-grid gap-2 mb-2">
+				<button className="btn btn-outline-primary" type="button"  data-bs-toggle="modal" data-bs-target="#addNoteModal">Add Note</button>
 			</div>
-			<p>
-				This boilerplate comes with lots of documentation:{" "}
-				<a href="https://start.4geeksacademy.com/starters/react-flask">
-					Read documentation
-				</a>
-			</p>
+			<NotesList updateNotes={updateNotes} />
+			<AddNoteModal onNoteAdded={handleNoteAdded} />
 		</div>
 	);
 };

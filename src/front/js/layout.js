@@ -25,7 +25,7 @@ const Layout = () => {
         <div>
             <BrowserRouter basename={basename}>
                 <ScrollToTop>
-                    <NotesList />
+                    <Home />
                 </ScrollToTop>
             </BrowserRouter>
         </div>

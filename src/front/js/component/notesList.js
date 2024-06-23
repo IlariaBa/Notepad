@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 
 import { getNotes } from "../../client-API/backendAPI";
 
-export const NotesList = () => {
+import { NoteCard } from "./noteCard";
+
+export const NotesList = ({ updateNotes }) => {
 
     const [isLoading, setIsLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
@@ -10,7 +12,7 @@ export const NotesList = () => {
 
     useEffect(() => {
         fetchNotes();
-    }, []);
+    }, [updateNotes]);
 
     const fetchNotes = async () => {
         setErrorMsg("");
@@ -27,19 +29,21 @@ export const NotesList = () => {
         }
     }
 
+    const handleNoteDeleted = () => {
+        fetchNotes();
+    };
+
     return (
-        <div className="container">
+        <div>
             {isLoading ? (
                 <p>Loading...</p>
             ) : errorMsg ? (
                 <p>Error: {errorMsg}</p>
             ) : (
-                <div>
-                    {/* Renderiza tus notas aquí */}
-                    {notesInfo && notesInfo.results && notesInfo.results.map(note => (
-                        <div key={note.id}>
-                            <h3>{note.title}</h3>
-                            <p>{note.content}</p>
+                <div className="row">
+                    {notesInfo && notesInfo.results && notesInfo.results.slice().reverse().map(note => (
+                        <div className="col-lg-6 my-2" key={note.id}>
+                            <NoteCard note={note} onNoteDeleted={handleNoteDeleted} />
                         </div>
                     ))}
                 </div>
