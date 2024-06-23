@@ -126,3 +126,30 @@ export const editNote = async (note_id, modifiedNote) => {
         throw error;
     }
 }
+
+///////////////////////
+//Categories
+
+//Get all categories
+export const getCategories = async() => {
+    try {
+        const response = await fetch(`${apiUrlBase}/api/category`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.msg);
+        }
+
+        const data = await response.json()
+        return data;
+
+    } catch (error) {
+        console.error('Error on getting categories: ', error);
+        throw error;
+    }
+}

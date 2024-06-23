@@ -1,21 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
 
 import { deleteNote } from "../../client-API/backendAPI";
+import { editNote } from "../../client-API/backendAPI";
 
-import { EditNoteModal } from "./editNoteModal";
-
-export const NoteCard = ({ note, onNoteDeleted, onNoteUpdated }) => {
+export const NoteCard = ({ note, categories, onNoteDeleted, onNoteUpdated }) => {
 
     const [isLoading, setIsLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
+
     const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+
+
     const [noteDelete, setNoteDelete] = useState();
     const [noteEdit, setNoteEdit] = useState();
-
-    const updateNoteDelete = (noteToDelete) => {
-        setShowConfirmModal(true);
-        setNoteDelete(noteToDelete);
-    }
+    const [noteActive, setNoteActive] = useState(note.is_active)
 
     const onDelete = async (data) => {
         setErrorMsg("");
@@ -33,10 +33,62 @@ export const NoteCard = ({ note, onNoteDeleted, onNoteUpdated }) => {
         }
     }
 
-    const [updateNotes, setUpdateNotes] = useState(false);
+    const { register, handleSubmit, reset, setValue } = useForm({
+        defaultValues: {
+            title: "",
+            content: "",
+        },
+        mode: "onBlur"
+    });
+
+    useEffect(() => {
+        if (noteEdit) {
+            reset({
+                title: noteEdit.title,
+                content: noteEdit.content,
+            });
+        }
+    }, [noteEdit, reset]);
+
+    const [editNoteError, setEditNoteError] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const onSubmit = async (data) => {
+        try {
+            setEditNoteError("");
+            setIsSubmitting(true);
+            await editNote(noteEdit.id, data);
+
+            reset(); // Reset form after editing the new note
+            onNoteUpdated(); //Call onNoteUpdated to update the notes list
+
+            //Close modal
+            setShowEditModal(false);
+
+            setIsSubmitting(false);
+
+        } catch (error) {
+            setEditNoteError(error.message);
+            setIsSubmitting(false);
+        }
+    };
+
+    useEffect(() => {
+        const noteToArchive = note;
+        noteToArchive.is_active = noteActive;
+        archiveNote(noteToArchive)
+    }, [noteActive])
+
+    const archiveNote = async (data) => {
+        try {
+            await editNote(data.id, data);
+        } catch (error) {
+            setErrorMsg(error.message);
+        }
+    };
 
     if (!note) {
-        return null;
+        return <div className="fst-italic">There are no notes</div>;
     }
 
     return (
@@ -44,72 +96,142 @@ export const NoteCard = ({ note, onNoteDeleted, onNoteUpdated }) => {
             <div className="card h-100">
                 <div className="card-header d-flex align-items-center">
                     {note.categories.length > 0 ? (
-                        <div>
+                        <div className="d-flex">
                             {note.categories.map((category) => (
-                                <div key={category.id}>{category.category_name}</div>
+                                <div key={category.id} className="me-2 px-3 py-1 bg-success rounded">{category.category_name}</div>
                             ))}
                         </div>
                     ) : (
                         <div className="fst-italic">No categories</div>
                     )}
-                    <button type="button" className="btn btn-outline-primary ms-auto rounded-circle">
-                        <i className="fa-solid fa-plus"></i>
-                    </button>
+                    <div className="dropstart ms-auto">
+                        <button type="button" className="btn btn-outline-primary rounded-circle" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i className="fa-solid fa-plus"></i>
+                        </button>
+                        <ul className="dropdown-menu" aria-labelledby="filterDropdown">
+                            {categories.map((category) => (
+                                <li key={category.id}>
+                                    <button className="dropdown-item">{category.category_name}</button>
+                                </li>
+                            ))}
+                            {categories.length >0 && <hr className="my-1"/>}
+                            <li>
+                                <button className="dropdown-item fst-italic">Add category</button>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
                 <div className="card-body">
                     <h5 className="card-title">{note.title}</h5>
                     <p className="card-text">{note.content}</p>
                 </div>
                 <div className="card-footer d-flex">
-                    <button type="button" className="btn btn-primary ms-auto" data-bs-toggle="modal" data-bs-target="#editNoteModal" onClick={() => setNoteEdit(note)}>
+                    {noteActive ?
+                        <button type="button"
+                            className="btn btn-outline-warning"
+                            onClick={() => setNoteActive(!noteActive)}>
+                            <i className="fa-solid fa-box-archive"></i>
+                        </button>
+                        :
+                        <button type="button"
+                            className="btn btn-warning"
+                            onClick={() => setNoteActive(!noteActive)}>
+                            <i className="fa-solid fa-box-archive"></i>
+                        </button>}
+                    <button type="button"
+                        className="btn btn-primary ms-auto"
+                        onClick={() => {
+                            setShowEditModal(true);
+                            setNoteEdit(note);
+                        }}>
                         <i className="fa-solid fa-pencil"></i>
                     </button>
-                    <button type="button" className="btn btn-danger ms-2" onClick={() => updateNoteDelete(note)}>
+                    <button type="button"
+                        className="btn btn-danger ms-2"
+                        onClick={() => {
+                            setShowConfirmModal(true);
+                            setNoteDelete(note);
+                        }}>
                         <i className="fa-solid fa-trash-can"></i>
                     </button>
                 </div>
             </div>
-            {noteEdit && <EditNoteModal noteToEdit={noteEdit} onNoteUpdated={onNoteUpdated} />}
 
-            {/* Modal that asks for confirmation to delete the record*/}
-            {noteDelete && 
-            <div className="modal" tabIndex="-1" role="dialog" style={{ display: showConfirmModal ? 'block' : 'none' }}>
-                <div className="modal-dialog" role="document">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h5 className="modal-title">Confirm Delete</h5>
-                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={() => setShowConfirmModal(false)}></button>
-                        </div>
-                        <div className="modal-body">
-                            <h5 className="text-center mb-3">Are you sure you want to delete this note?</h5>
-                            <h6>{noteDelete.title}</h6>
-                            <p>{noteDelete.content}</p>
-                        </div>
-                        <div className="modal-footer">
-                            <button
-                                type="button"
-                                className="btn btn-primary"
-                                data-bs-dismiss="modal"
-                                onClick={() => setShowConfirmModal(false)}
-                            >
-                                Close
-                            </button>
+            {/* Modal that asks for confirmation to delete the note*/}
+            {noteDelete &&
+                <div className="modal" tabIndex="-1" role="dialog" style={{ display: showConfirmModal ? 'block' : 'none' }}>
+                    <div className="modal-dialog" role="document">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">Confirm Delete</h5>
+                                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={() => setShowConfirmModal(false)}></button>
+                            </div>
+                            <div className="modal-body">
+                                <h5 className="text-center mb-3">Are you sure you want to delete this note?</h5>
+                                <h6>{noteDelete.title}</h6>
+                                <p>{noteDelete.content}</p>
+                            </div>
+                            <div className="modal-footer">
+                                <button
+                                    type="button"
+                                    className="btn btn-primary"
+                                    data-bs-dismiss="modal"
+                                    onClick={() => setShowConfirmModal(false)}
+                                >
+                                    Close
+                                </button>
 
-                            <button
-                                type="button"
-                                className="btn btn-danger"
-                                data-bs-dismiss="modal"
-                                onClick={() => {
-                                    onDelete();
-                                    setShowConfirmModal(false);
-                                }}
-                            >
-                                Delete
-                            </button>
+                                <button
+                                    type="button"
+                                    className="btn btn-danger"
+                                    data-bs-dismiss="modal"
+                                    onClick={() => {
+                                        onDelete();
+                                        setShowConfirmModal(false);
+                                    }}
+                                >
+                                    Delete
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            }
+
+            {/* Modal for edit the note*/}
+            {noteEdit &&
+                <div className="modal" tabIndex="-1" role="dialog" aria-hidden="true" style={{ display: showEditModal ? 'block' : 'none' }}>
+                    {console.log(noteEdit)}
+                    {console.log(showEditModal)}
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h1 className="modal-title fs-5">Edit Note</h1>
+                                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={() => setShowEditModal(false)}></button>
+                            </div>
+                            <div className="modal-body">
+                                {editNoteError && <div className="alert alert-danger">{editNoteError}</div>}
+                                <form onSubmit={handleSubmit(onSubmit)}>
+                                    <div className="mb-3">
+                                        <label htmlFor="noteTitle" className="form-label">Title</label>
+                                        <input type="text" className="form-control" id="noteTitle" {...register("title", { required: true })} />
+                                    </div>
+                                    <div className="mb-3">
+                                        <label htmlFor="noteContent" className="form-label">Content</label>
+                                        <textarea className="form-control" id="noteContent" rows="3" {...register("content")} />
+                                    </div>
+                                    <div className="modal-footer">
+                                        <button type="button" className="btn btn-secondary" data-bs-dismiss="modal" onClick={() => setShowEditModal(false)}>Close</button>
+                                        <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+                                            {isSubmitting ? "Saving..." : "Save changes"}
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             }
 
         </div>
