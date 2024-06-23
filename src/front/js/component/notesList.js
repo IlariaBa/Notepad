@@ -33,6 +33,10 @@ export const NotesList = ({ updateNotes }) => {
         fetchNotes();
     };
 
+    const handleNoteUpdated = () => {
+        fetchNotes();
+    };
+
     return (
         <div>
             {isLoading ? (
@@ -43,7 +47,7 @@ export const NotesList = ({ updateNotes }) => {
                 <div className="row">
                     {notesInfo && notesInfo.results && notesInfo.results.slice().reverse().map(note => (
                         <div className="col-lg-6 my-2" key={note.id}>
-                            <NoteCard note={note} onNoteDeleted={handleNoteDeleted} />
+                            <NoteCard note={note} onNoteDeleted={handleNoteDeleted} onNoteUpdated={handleNoteUpdated}/>
                         </div>
                     ))}
                 </div>

@@ -52,14 +52,14 @@ export const getNote = async (note_id) => {
 }
 
 //Add new note
-export const addNote = async (formData) => {
+export const addNote = async (newNote) => {
     try {
         const response = await fetch(`${apiUrlBase}/api/note`, {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: formData,
+            body: newNote,
         });
         const data = await response.json();
 
@@ -97,6 +97,32 @@ export const deleteNote = async (note_id) => {
 
     } catch (error) {
         console.error('Error trying to delete a note', error);
+        throw error;
+    }
+}
+
+//Edit note
+export const editNote = async (note_id, modifiedNote) => {
+    try {
+        const response = await fetch(`${apiUrlBase}/api/note/${note_id}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(modifiedNote),
+        });
+        const data = await response.json();
+
+        if (!response.ok) {
+            const errorData = data;
+            throw new Error(errorData.msg);
+        }
+
+        // Returns the modified note
+        return data;
+
+    } catch (error) {
+        console.error('Error trying to modify a note', error);
         throw error;
     }
 }

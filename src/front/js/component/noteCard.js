@@ -4,7 +4,7 @@ import { deleteNote } from "../../client-API/backendAPI";
 
 import { EditNoteModal } from "./editNoteModal";
 
-export const NoteCard = ({ note, onNoteDeleted }) => {
+export const NoteCard = ({ note, onNoteDeleted, onNoteUpdated }) => {
 
     const [isLoading, setIsLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
@@ -15,7 +15,6 @@ export const NoteCard = ({ note, onNoteDeleted }) => {
     const updateNoteDelete = (noteToDelete) => {
         setShowConfirmModal(true);
         setNoteDelete(noteToDelete);
-        console.log(noteToDelete);
     }
 
     const onDelete = async (data) => {
@@ -35,10 +34,6 @@ export const NoteCard = ({ note, onNoteDeleted }) => {
     }
 
     const [updateNotes, setUpdateNotes] = useState(false);
-
-    const handleNoteUpdated = () => {
-        setUpdateNotes(prev => !prev);
-    };
 
     if (!note) {
         return null;
@@ -74,7 +69,7 @@ export const NoteCard = ({ note, onNoteDeleted }) => {
                     </button>
                 </div>
             </div>
-            {noteEdit && <EditNoteModal noteToEdit={noteEdit} onNoteUpdated={handleNoteUpdated} />}
+            {noteEdit && <EditNoteModal noteToEdit={noteEdit} onNoteUpdated={onNoteUpdated} />}
 
             {/* Modal that asks for confirmation to delete the record*/}
             {noteDelete && 
